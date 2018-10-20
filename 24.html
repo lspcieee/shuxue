@@ -1,0 +1,264 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+
+    <title>24点计算</title>
+	    <link rel="stylesheet" type="text/css" href="semantic/semantic.min.css" />
+    <script src="js/jquery-1.10.2.min.js"></script>
+    <script src="semantic/semantic.min.js"></script>
+
+    <style type="text/css">
+        body {
+            padding: 20px;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="ui container">
+        <h2 class="ui header">
+            <i class="settings icon"></i>
+            <div class="content">
+                24点计算
+                <div class="sub header">自动计算24点，并给出计算过程。</div>
+            </div>
+        </h2>
+        <div class="ui tall stacked segment">
+            <p>本代码由javascript实现，可以直接通过浏览器查看源代码。开发者：<a href="http://www.lspcieee.com/">lspcieee</a></p>
+        </div>
+		
+		<div class="ui mini form">
+		 <div class="field">
+			<div class="ui labeled input">
+			  <div class="ui label">
+				数字1
+			  </div>
+			  <input type="number" id="s1">
+			</div>
+		 </div>
+		 <div class="field">
+			<div class="ui labeled input">
+			  <div class="ui label">
+				数字2
+			  </div>
+			  <input type="number" id="s2">
+			</div>
+		 </div>
+		 <div class="field">
+			<div class="ui labeled input">
+			  <div class="ui label">
+				数字3
+			  </div>
+			  <input type="number" id="s3">
+			</div>
+		 </div>
+		 <div class="field">
+			<div class="ui labeled input">
+			  <div class="ui label">
+				数字4
+			  </div>
+			  <input type="number" id="s4">
+			</div>
+		 </div>
+		 <div class="field">
+			<div class="ui submit primary button" id="run">
+			 <i class="icon check"></i>
+			计算</div>
+		 </div>
+	
+		</div>
+		<div class="ui piled segment" id="msgBox">
+			计算结果
+        </div>
+    </div>
+	
+
+
+
+<script type="text/javascript">
+
+    function funArray(s1, s2,dh) {
+        var pArray = [
+            {
+                num:s1 + s2,
+                str: s1 +'+'+ s2+'=' + (s1 + s2)
+            },
+            {
+                num:s1 * s2,
+                str: s1 + 'x' + s2 + '=' + (s1 * s2)
+            }
+        ];
+        //减法不能为负数
+        if ((s1 - s2) > 0) {
+            pArray.push({
+                num: s1 - s2,
+                str: s1 + '-' + s2 + '=' + (s1 - s2)
+            });
+        }
+        //除法不能为小数
+        if (parseInt(s1 / s2)===(s1/s2))
+        {
+            pArray.push({
+                num: parseInt(s1 / s2),
+                str: s1 + '÷' + s2 + '=' + (s1 / s2)
+            });
+        }
+
+        //调换顺序
+        if (dh) {
+            if (parseInt(s2 / s1)===(s2/s1))
+            {
+                pArray.push({
+                    num: parseInt(s2 / s1),
+                    str: s2 + '÷' + s1 + '=' + parseInt(s2 / s1)
+                });
+            }
+            if ((s2 - s1) > 0) {
+                pArray.push({
+                    num: s2 - s1,
+                    str: s2 + '-' + s1 + '=' + (s2 - s1)
+                });
+            }
+        }
+
+        return pArray;
+    }
+    //根据4个数顺序，组合各种计算可能性
+    function run(s1,s2,s3,s4) {
+        var p1 = 0;
+        var p2 = 0;
+        var p3 = 0;
+        var p4 = 0;
+        var msg = "";
+        var count = 0;
+        //s1与s2计算可能结果集
+        var p1Array = funArray(s1, s2,false);
+        for (var i1 = 0; i1 < p1Array.length; i1++) {
+            //第一步和s2计算结果
+            p1 = p1Array[i1].num;
+
+            var p2Array = funArray(p1, s3,true);
+            for (var i2 = 0; i2 < p2Array.length; i2++) {
+                //第二步结果与s3计算
+                p2 = p2Array[i2].num;
+
+                var p3Array = funArray(p2, s4,true);
+                for (var i3 = 0; i3 < p3Array.length; i3++) {
+                    var p3 = p3Array[i3].num;
+
+                    if (p3 == 24) {
+                        count++;
+                        var p1Str = p1Array[i1].str;
+                        var p2Str = p2Array[i2].str;
+                        var p3Str = p3Array[i3].str;
+                        msg = msg+"<br />计算顺序：<br />";
+                        msg = msg + p1Str + "<br />";
+                        msg = msg + p2Str + "<br />";
+                        msg = msg + p3Str + "<br />";
+                    
+                    }
+                }
+            }
+        }
+        if (count > 0) {
+            return [count, msg];
+        }
+        return [count, '匹配失败'];
+    };
+
+    $("#run").click(function() {
+        var abcdKey = [];
+        
+        var s1 = 0;
+        var s2 = 0;
+        var s3 = 0;
+        var s4 = 0;
+        if ($("#s1").val() != '') {
+           var  t1 = parseInt($("#s1").val());
+            if (t1 < 11 && t1 > 0) {
+                s1 = t1;
+            }
+        }
+        if ($("#s2").val() != '') {
+            t2 = parseInt($("#s2").val());
+            if (t2 < 11 && t2 > 0) {
+                s2 = t2;
+            }
+        }
+        if ($("#s3").val() != '') {
+            t3 = parseInt($("#s3").val());
+            if (t3 < 11 && t3 > 0) {
+                s3 = t3;
+            }
+        }
+        if ($("#s4").val() != '') {
+            t4 = parseInt($("#s4").val());
+            if (t4 < 11 && t4 > 0) {
+                s4 = t4;
+            }
+        }
+        if (s1 == 0 || s2 == 0 || s3 == 0 || s4 == 0) {
+            $("#msgBox").html("请输入正确的数字：1-10");
+            return;
+        }
+        var sArray = [s1, s2, s3, s4];
+
+        //匹配数量
+        var count = 0;
+        var msg = "";
+
+        //确认每个位置的数
+        for (var i1 = 0; i1 < 4; i1++) {
+            s1 = sArray[i1];
+            for (var i2 = 0; i2 < 4; i2++) {
+                if (i2 == i1) {
+                    continue;
+                }
+
+                s2 = sArray[i2];
+                for (var i3 = 0; i3 < 4; i3++) {
+                    if (i3 == i1
+                        || i3 == i2) {
+                        continue;
+                    }
+
+                    s3 = sArray[i3];
+                    for (var i4 = 0; i4 < 4; i4++) {
+                        if (i4 == i1
+                            || i4 == i2
+                            || i4 == i3) {
+                            continue;
+                        }
+                        s4 = sArray[i4];
+
+                        //确保顺序唯一性
+                        var key = s1 + "" + s2 + "" + s3 + "" + s4 + "";
+                        if ($.inArray(key, abcdKey) === -1) {
+                            //计算结果
+                            var returnArray = run(s1, s2, s3, s4);
+                            if (returnArray[0]>0) {
+                                count = count + returnArray[0];
+                                msg = msg + returnArray[1];
+                            }
+                            abcdKey.push(key);
+                        }
+
+                    }
+                }
+            }
+        }
+        if (count > 0) {
+            $("#msgBox").html("成功匹配"+count+"种算法<br />");
+            $("#msgBox").append(msg);
+        } else {
+            $("#msgBox").html("无匹配结果");
+        }
+    });
+
+</script>
+</body>
+</html>

@@ -1,0 +1,163 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <!-- Standard Meta -->
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+
+
+    <title>20以内加减法随机练习题</title>
+    <link rel="stylesheet" type="text/css" href="semantic/semantic.min.css" />
+    <script src="js/jquery-1.10.2.min.js"></script>
+    <script src="semantic/semantic.min.js"></script>
+    <script src="js/knockout-3.4.0.js"></script>
+
+    <style type="text/css">
+        body {
+            padding: 20px;
+        }
+         .exp-td {
+             font-size: 20px;
+             line-height: 20px;
+         }
+        .exp-td label {
+            width: 85px;
+            display: inline-block;
+            text-align: right;
+        }
+
+        .exp-td div {
+            width: 40px;
+        }
+        .exp-td div i{
+            padding-top: 4px;
+        }
+
+        .checkmark {
+            color: green;
+        }
+
+        .remove {
+            color: red;
+        }
+    </style>
+    <script type="text/javascript">
+
+        function randomInt(min, max) {
+            return parseInt(Math.random() * (max - min + 1) + min);
+        }
+
+        function randomAdditiveExpression(min, max) {
+            var exp = {
+                a: 1,
+                b: 1,
+                c: 2,
+                e: '+',
+                str: '1 + 1 ='
+            };
+            exp.c = randomInt(min, max);
+            exp.a = randomInt(min, exp.c);
+            exp.b = exp.c - exp.a;
+
+            if (randomInt(1, 100) % 2 === 1) {
+                //加法
+                exp.str = exp.b + ' + ' + exp.a + " = ";
+                exp.e = '+';
+            } else {
+                //减法
+                exp.str = exp.c + ' - ' + exp.a + " = ";
+                exp.e = '-';
+            }
+            return exp;
+        }
+
+
+        $(function () {
+            function editViewModel() {
+                var self = this;
+                self.row = 5;
+                self.column = 4;
+
+                var expArray = new Array();
+                for (var i = 0; i < self.row * self.column; i++) {
+                    var exp = randomAdditiveExpression(1, 19);
+                    exp.answer = ko.observable('');;
+                    exp.operationResult = ko.observable(-1);
+                    expArray.push(exp);
+                }
+
+                self.expArray = ko.observable(expArray);
+                self.onChange = function () {
+                    var exp = this;
+                    var answer = exp.answer() - 0;
+                    if (exp.e === '+') {
+                        if (answer === exp.c) {
+                            exp.operationResult(1);
+                        } else {
+                            exp.operationResult(0);
+                        }
+                    } else {
+                        if (answer === exp.b) {
+                            exp.operationResult(1);
+                        } else {
+                            exp.operationResult(0);
+                        }
+                    }
+                }
+            }
+
+
+            var viewModel = new editViewModel();
+
+            ko.applyBindings(viewModel);
+
+
+        });
+    </script>
+</head>
+<body>
+    <div class="ui container">
+
+
+        <h2 class="ui header">
+            <i class="settings icon"></i>
+            <div class="content">
+                计算题
+                <div class="sub header">20以内的加法，20以内的减法。</div>
+            </div>
+        </h2>
+        <div class="ui tall stacked segment">
+            <p>每次随机生成<label data-bind="text:$root.row*$root.column"></label>道题，每次刷新页面将重新生成。开发者：<a href="http://www.lspcieee.com/">lspcieee</a></p>
+        </div>
+        <table class="ui selectable sortable compact celled striped  table">
+            <tbody data-bind="foreach: new Array($root.row)">
+                <tr>
+                    <!-- ko foreach: {data:new Array($root.column),as:'col'} -->
+                    <!-- ko with: $root.expArray()[($index()+1)+($parentContext.$index())*$root.column-1] -->
+                    <td class="exp-td">
+                        <label data-bind="text:$data.str">
+                        </label>
+
+                        <div class="ui transparent input">
+                            <input type="number" data-bind="value:answer,event: { change: $root.onChange.bind($data)}" placeholder="?" />
+                            <i data-bind="attr:{class:operationResult()==1?'checkmark icon':operationResult()==0?'remove icon ':'icon'}" class="checkmark icon"></i>
+                        </div>
+                    </td>
+
+                    <!-- /ko -->
+                    <!-- /ko -->
+
+                </tr>
+
+            </tbody>
+        </table>
+
+
+    </div>
+
+
+
+</body>
+</html>
